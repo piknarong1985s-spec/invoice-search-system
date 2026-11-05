@@ -1,156 +1,763 @@
 <!DOCTYPE html>
-<html lang="th">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบค้นหาเงื่อนไขเอกสาร - Invoice Data Search Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Invoice Data Search Dashboard</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    *{box-sizing:border-box}
+
+    html,body{
+      margin:0;
+      padding:0;
+      width:100%;
+      min-height:100%;
+      font-family:Arial,Helvetica,sans-serif;
+      background:#f4f7fb;
+      color:#1f2937;
+    }
+
+    body{padding:10px}
+
+    .container{
+      width:100%;
+      max-width:1700px;
+      margin:0 auto;
+    }
+
+    /* =========================
+       COMPACT HEADER
+       ========================= */
+    .header-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-bottom:10px;
+    }
+
+    .header-card{
+      width:100%;
+      height:78px;
+      min-height:78px;
+      background:#fff;
+      border:1px solid #e3e9f2;
+      border-radius:16px;
+      box-shadow:0 3px 12px rgba(0,0,0,.06);
+    }
+
+    /* SEARCH */
+    .search-card{
+      display:flex;
+      align-items:center;
+      padding:10px 18px;
+      gap:16px;
+    }
+
+    .brand-icon{
+      width:44px;
+      height:44px;
+      min-width:44px;
+      border-radius:12px;
+      background:#ffe4e4;
+      color:#ff1111;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:20px;
+    }
+
+    .brand-text{
+      min-width:245px;
+      line-height:1.15;
+    }
+
+    .brand-title{
+      font-size:18px;
+      font-weight:700;
+      color:#172033;
+      white-space:nowrap;
+    }
+
+    .brand-subtitle{
+      margin-top:5px;
+      font-size:12px;
+      color:#7b8798;
+      white-space:nowrap;
+    }
+
+    .search-area{
+      margin-left:auto;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      width:52%;
+    }
+
+    .search-input{
+      width:100%;
+      height:42px;
+      border:2px solid #d8e0eb;
+      outline:none;
+      border-radius:10px;
+      padding:0 14px;
+      font-size:14px;
+      color:#24344d;
+      background:#fff;
+    }
+
+    .search-input:focus{
+      border-color:#ff3b3b;
+      box-shadow:0 0 0 3px rgba(255,0,0,.08);
+    }
+
+    .search-button{
+      height:42px;
+      min-width:108px;
+      padding:0 16px;
+      border:none;
+      border-radius:10px;
+      background:#ff0505;
+      color:#fff;
+      font-size:14px;
+      font-weight:700;
+      cursor:pointer;
+      transition:.2s;
+      white-space:nowrap;
+    }
+
+    .search-button:hover{
+      background:#e60000;
+      transform:translateY(-1px);
+    }
+
+    /* CUSTOMER */
+    .customer-card{
+      display:flex;
+      align-items:center;
+      padding:10px 20px;
+    }
+
+    .customer-icon{
+      width:44px;
+      height:44px;
+      min-width:44px;
+      border-radius:50%;
+      background:#edf4ff;
+      color:#2563eb;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:19px;
+      margin-right:14px;
+    }
+
+    .customer-name{
+      font-size:18px;
+      font-weight:700;
+      color:#172033;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .customer-code{
+      margin-top:4px;
+      font-size:12px;
+      color:#718096;
+    }
+
+    /* SECOND ROW */
+    .second-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-bottom:10px;
+    }
+
+    .config-section{
+      height:78px;
+      min-height:78px;
+      background:#fff;
+      border:1px solid #e3e9f2;
+      border-radius:16px;
+      padding:8px 14px;
+      box-shadow:0 3px 12px rgba(0,0,0,.06);
+      overflow:hidden;
+    }
+
+    .config-title{
+      height:10px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-bottom:6px;
+      font-size:12px;
+      font-weight:700;
+      color:#24344d;
+    }
+
+    .config-title i{color:#ff1111;font-size:10px}
+
+    .config-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:8px;
+    }
+
+    .config-box{
+      height:42px;
+      border:1px solid #dfe7f1;
+      background:#f8fafc;
+      border-radius:10px;
+      padding:0 10px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      min-width:0;
+    }
+
+    .config-box:nth-child(1) i{color:#ff1111}
+    .config-box:nth-child(2) i{color:#2563eb}
+    .config-box:nth-child(3) i{color:#16a34a}
+
+    .config-icon{
+      width:26px;
+      height:26px;
+      min-width:26px;
+      border-radius:8px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#fff;
+      font-size:18px;
+    }
+
+    .config-info{
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      line-height:1.05;
+    }
+
+    .config-label{
+      font-size:12px;
+      color:#6b7280;
+      white-space:nowrap;
+    }
+
+    .config-value{
+      margin-top:3px;
+      font-size:18px;
+      font-weight:700;
+      color:#536174;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    /* SALES / SUPPORT */
+    .people-card{
+      height:78px;
+      min-height:78px;
+      background:#fff;
+      border:1px solid #e3e9f2;
+      border-radius:16px;
+      box-shadow:0 3px 12px rgba(0,0,0,.06);
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      overflow:hidden;
+    }
+
+    .person{
+      display:flex;
+      align-items:center;
+      padding:8px 22px;
+      min-width:0;
+    }
+
+    .person + .person{
+      border-left:1px solid #e5eaf1;
+    }
+
+    .person-icon{
+      width:42px;
+      height:42px;
+      min-width:42px;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin-right:13px;
+      font-size:17px;
+    }
+
+    .sales-icon{
+      background:#f4eaff;
+      color:#7024bd;
+    }
+
+    .support-icon{
+      background:#e9fbf1;
+      color:#009b69;
+    }
+
+    .person-info{min-width:0}
+
+    .person-name{
+      font-size:14px;
+      font-weight:700;
+      color:#172033;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .person-role{
+      margin-top:2px;
+      font-size:10px;
+      color:#718096;
+      white-space:nowrap;
+    }
+
+    /* ERROR */
+    #errorBox{
+      display:none;
+      width:100%;
+      background:#fee2e2;
+      color:#991b1b;
+      border:1px solid #fecaca;
+      border-radius:10px;
+      padding:8px 12px;
+      font-size:13px;
+      font-weight:600;
+      margin-bottom:10px;
+    }
+
+    /* =========================
+       RESULT CARDS
+       ========================= */
+    .result-grid{
+      display:none;
+      width:100%;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:14px;
+    }
+
+    .result-card{
+      width:100%;
+      min-height:280px;
+      background:#fff;
+      border-radius:16px;
+      border:1px solid #e1e7ef;
+      box-shadow:0 3px 12px rgba(0,0,0,.06);
+      overflow:hidden;
+    }
+
+    .result-header{
+      width:100%;
+      min-height:48px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:7px 10px;
+      color:#fff;
+      font-size:15px;
+      font-weight:700;
+      text-align:center;
+    }
+
+    .result-header i{
+      margin-right:8px;
+      font-size:14px;
+    }
+
+    .result-card:nth-child(1) .result-header{background:#ff0808}
+    .result-card:nth-child(2) .result-header{background:#24428f}
+    .result-card:nth-child(3) .result-header{background:#8122ce}
+    .result-card:nth-child(4) .result-header{background:#079b70}
+
+    .result-body{
+      width:100%;
+      padding:28px 20px;
+      text-align:left;
+      font-size:16px;
+      line-height:1.65;
+      color:#172d4d;
+      white-space:pre-wrap;
+      word-break:break-word;
+    }
+
+    /* =========================
+       RESPONSIVE
+       ========================= */
+    @media(max-width:1100px){
+      .brand-text{min-width:190px}
+      .search-area{width:48%}
+      .result-grid{gap:10px}
+      .result-body{font-size:15px}
+    }
+
+    @media(max-width:850px){
+      .header-grid,
+      .second-grid{
+        grid-template-columns:1fr;
+      }
+
+      .header-card,
+      .config-section,
+      .people-card{
+        height:auto;
+        min-height:78px;
+      }
+
+      .search-card{min-height:78px}
+      .search-area{width:45%}
+
+      .result-grid{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+      }
+    }
+
+    @media(max-width:600px){
+      body{padding:7px}
+
+      .search-card{
+        flex-wrap:wrap;
+        height:auto;
+        padding:10px;
+      }
+
+      .brand-text{
+        min-width:0;
+        flex:1;
+      }
+
+      .brand-title{font-size:16px}
+      .brand-subtitle{font-size:11px}
+
+      .search-area{
+        width:100%;
+        margin-left:0;
+      }
+
+      .config-grid{
+        grid-template-columns:1fr;
+      }
+
+      .config-section{
+        height:auto;
+        padding-bottom:10px;
+      }
+
+      .people-card{
+        grid-template-columns:1fr;
+      }
+
+      .person{
+        padding:10px 15px;
+      }
+
+      .person + .person{
+        border-left:none;
+        border-top:1px solid #e5eaf1;
+      }
+
+      .result-grid{
+        grid-template-columns:1fr;
+      }
+
+      .result-card{min-height:180px}
+    }
+  </style>
 </head>
-<body class="bg-slate-100 min-h-screen p-6 font-sans">
 
-    <div class="max-w-7xl mx-auto space-y-6">
-        <!-- Header & Search Box -->
-        <div class="bg-white p-4 rounded-2xl shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-3">
-                <div class="bg-red-50 p-3 rounded-xl text-red-600 font-bold">📄</div>
-                <div>
-                    <h1 class="text-lg font-bold text-slate-800">ระบบค้นหาเงื่อนไขเอกสาร</h1>
-                    <p class="text-xs text-slate-500">ค้นหาและตรวจสอบเงื่อนไขการออกเอกสาร</p>
-                </div>
-            </div>
-            
-            <div class="flex items-center gap-2 w-full md:w-auto">
-                <input type="text" id="searchInput" placeholder="พิมพ์รหัสลูกค้า เช่น TH0032" class="px-4 py-2 border border-slate-200 rounded-xl outline-none focus:border-red-500 w-full md:w-64" onkeypress="if(event.key === 'Enter') handleSearch()">
-                <button onclick="handleSearch()" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-xl font-medium transition flex items-center gap-1 cursor-pointer">
-                    🔍 ค้นหา
-                </button>
-            </div>
-        </div>
+<body>
+<div class="container">
 
-        <!-- Customer & Sales Info Cards (Match Original Layout) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Customer Name & Code Card -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm flex items-center gap-3">
-                <div class="p-3 bg-blue-50 text-blue-600 rounded-xl">🏢</div>
-                <div>
-                    <h2 id="customerName" class="text-lg font-bold text-slate-800">-</h2>
-                    <p class="text-xs text-slate-400">Customer Code : <span id="displayCode">-</span></p>
-                </div>
-            </div>
+  <!-- =========================
+       ROW 1
+       ========================= -->
+  <div class="header-grid">
 
-            <!-- Sales Incharge & Support Grid -->
-            <div class="grid grid-cols-2 gap-4">
-                <div class="bg-white p-4 rounded-2xl shadow-sm flex items-center gap-3">
-                    <div class="p-2.5 bg-purple-50 text-purple-600 rounded-xl">👤</div>
-                    <div>
-                        <p class="text-xs text-slate-400">Sales Incharge</p>
-                        <p id="salesIncharge" class="font-bold text-slate-700 text-base">-</p>
-                    </div>
-                </div>
-                <div class="bg-white p-4 rounded-2xl shadow-sm flex items-center gap-3">
-                    <div class="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl">🎧</div>
-                    <div>
-                        <p class="text-xs text-slate-400">Sale Support</p>
-                        <p id="saleSupport" class="font-bold text-slate-700 text-base">-</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <!-- SEARCH -->
+    <div class="header-card search-card">
+      <div class="brand-icon">
+        <i class="fa-solid fa-file-invoice"></i>
+      </div>
 
-        <!-- Sub Info Bar (Doc Type, Copies, Doc Return) -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-white p-4 rounded-2xl shadow-sm flex items-center gap-3">
-                <div class="p-2 bg-red-50 text-red-600 rounded-lg">📄</div>
-                <div>
-                    <p class="text-xs text-slate-400">Doc. Type</p>
-                    <p id="docType" class="font-bold text-slate-700">-</p>
-                </div>
-            </div>
-            <div class="bg-white p-4 rounded-2xl shadow-sm flex items-center gap-3">
-                <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">📋</div>
-                <div>
-                    <p class="text-xs text-slate-400">Copies</p>
-                    <p id="copies" class="font-bold text-slate-700">-</p>
-                </div>
-            </div>
-            <div class="bg-white p-4 rounded-2xl shadow-sm flex items-center gap-3">
-                <div class="p-2 bg-emerald-50 text-emerald-600 rounded-lg">🔄</div>
-                <div>
-                    <p class="text-xs text-slate-400">Doc. Return</p>
-                    <p id="docReturn" class="font-bold text-slate-700">-</p>
-                </div>
-            </div>
-        </div>
+      <div class="brand-text">
+        <div class="brand-title">ระบบค้นหาเงื่อนไขเอกสาร</div>
+        <div class="brand-subtitle">ค้นหาและตรวจสอบเงื่อนไขการออกเอกสาร</div>
+      </div>
 
-        <!-- Details Boxes (4 Columns with Color Top Borders) -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="bg-white rounded-2xl shadow-sm overflow-hidden border-t-4 border-red-600">
-                <div class="bg-red-50 px-4 py-2 font-bold text-red-600 text-sm">Invoice Conditions</div>
-                <div id="invoiceConditions" class="p-4 text-slate-600 text-sm min-h-[120px] whitespace-pre-line">-</div>
-            </div>
-            <div class="bg-white rounded-2xl shadow-sm overflow-hidden border-t-4 border-indigo-900">
-                <div class="bg-indigo-50 px-4 py-2 font-bold text-indigo-900 text-sm">Document Attached</div>
-                <div id="documentAttached" class="p-4 text-slate-600 text-sm min-h-[120px] whitespace-pre-line">-</div>
-            </div>
-            <div class="bg-white rounded-2xl shadow-sm overflow-hidden border-t-4 border-purple-600">
-                <div class="bg-purple-50 px-4 py-2 font-bold text-purple-600 text-sm">Remark</div>
-                <div id="remark" class="p-4 text-slate-600 text-sm min-h-[120px] whitespace-pre-line">-</div>
-            </div>
-            <div class="bg-white rounded-2xl shadow-sm overflow-hidden border-t-4 border-emerald-600">
-                <div class="bg-emerald-50 px-4 py-2 font-bold text-emerald-600 text-sm">Billing PO</div>
-                <div id="billingPo" class="p-4 text-slate-600 text-sm min-h-[120px] whitespace-pre-line">-</div>
-            </div>
-        </div>
+      <div class="search-area">
+        <input
+          type="text"
+          id="custCodeInput"
+          class="search-input"
+          placeholder="กรอกรหัสลูกค้า..."
+          autocomplete="off">
+        <button class="search-button" onclick="runSearch()">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          &nbsp;ค้นหา
+        </button>
+      </div>
     </div>
 
-    <script>
-        const SUPABASE_URL = 'https://tnellcczognzzjkwtsbf.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_1qt2jx7-2aN-bjfbFr1C9g_BxwOU4jG';
-        const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    <!-- CUSTOMER -->
+    <div class="header-card customer-card">
+      <div class="customer-icon">
+        <i class="fa-solid fa-building"></i>
+      </div>
 
-        window.handleSearch = async function() {
-            let code = document.getElementById('searchInput').value.trim();
-            if (!code) {
-                alert('กรุณากรอกรหัสลูกค้า');
-                return;
-            }
+      <div>
+        <div id="txtCustName" class="customer-name">-</div>
+        <div class="customer-code">
+          Customer Code : <span id="txtCustCode">-</span>
+        </div>
+      </div>
+    </div>
 
-            code = code.toUpperCase();
+  </div>
 
-            const { data, error } = await sbClient
-                .from('invoice_conditions')
-                .select('*')
-                .eq('customer_code', code)
-                .maybeSingle();
+  <!-- ERROR -->
+  <div id="errorBox"></div>
 
-            if (error) {
-                console.error('Database Error:', error.message);
-                alert('เกิดข้อผิดพลาดในการดึงข้อมูล');
-                return;
-            }
+  <!-- =========================
+       ROW 2
+       ========================= -->
+  <div class="second-grid">
 
-            if (!data) {
-                alert('ไม่พบข้อมูลรหัสลูกค้านี้');
-                return;
-            }
+    <!-- DOCUMENT INFORMATION -->
+    <div class="config-section">
+      <div class="config-title">
+        <i class="fa-solid fa-folder-open"></i>
+        ข้อมูลการออกเอกสาร
+      </div>
 
-            // Map data fields to original layout IDs
-            document.getElementById('customerName').innerText = data.customer_name || '-';
-            document.getElementById('displayCode').innerText = data.customer_code || '-';
-            document.getElementById('salesIncharge').innerText = data.sales_incharge || '-';
-            document.getElementById('saleSupport').innerText = data.sale_support || '-';
-            
-            document.getElementById('docType').innerText = data.doc_type || '-';
-            document.getElementById('copies').innerText = data.copies || '-';
-            document.getElementById('docReturn').innerText = data.doc_return || '-';
-            
-            document.getElementById('invoiceConditions').innerText = data.invoice_conditions || '-';
-            document.getElementById('documentAttached').innerText = data.document_attached || '-';
-            document.getElementById('remark').innerText = data.remark || '-';
-            document.getElementById('billingPo').innerText = data.billing_po || '-';
-        }
-    </script>
+      <div class="config-grid">
+
+        <div class="config-box">
+          <div class="config-icon">
+            <i class="fa-solid fa-file-lines"></i>
+          </div>
+          <div class="config-info">
+            <span class="config-label">Doc. Type</span>
+            <span id="selDocType" class="config-value">-</span>
+          </div>
+        </div>
+
+        <div class="config-box">
+          <div class="config-icon">
+            <i class="fa-regular fa-copy"></i>
+          </div>
+          <div class="config-info">
+            <span class="config-label">Copies</span>
+            <span id="selCopies" class="config-value">-</span>
+          </div>
+        </div>
+
+        <div class="config-box">
+          <div class="config-icon">
+            <i class="fa-solid fa-right-left"></i>
+          </div>
+          <div class="config-info">
+            <span class="config-label">Doc. Return</span>
+            <span id="selDocReturn" class="config-value">-</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SALES / SUPPORT -->
+    <div class="people-card">
+
+      <div class="person">
+        <div class="person-icon sales-icon">
+          <i class="fa-solid fa-user"></i>
+        </div>
+        <div class="person-info">
+          <div id="txtSalesName" class="person-name">-</div>
+          <div class="person-role">Sales Incharge</div>
+        </div>
+      </div>
+
+      <div class="person">
+        <div class="person-icon support-icon">
+          <i class="fa-solid fa-headset"></i>
+        </div>
+        <div class="person-info">
+          <div id="txtSaleSupport" class="person-name">-</div>
+          <div class="person-role">Sale Support</div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- =========================
+       RESULT
+       ========================= -->
+  <div id="resultGrid" class="result-grid">
+
+    <div class="result-card">
+      <div class="result-header">
+        <i class="fa-solid fa-gavel"></i>
+        Invoice Conditions
+      </div>
+      <div id="boxConditions" class="result-body">-</div>
+    </div>
+
+    <div class="result-card">
+      <div class="result-header">
+        <i class="fa-solid fa-paperclip"></i>
+        Document Attached
+      </div>
+      <div id="boxDocument" class="result-body">-</div>
+    </div>
+
+    <div class="result-card">
+      <div class="result-header">
+        <i class="fa-solid fa-comment-dots"></i>
+        Remark
+      </div>
+      <div id="boxRemark" class="result-body">-</div>
+    </div>
+
+    <div class="result-card">
+      <div class="result-header">
+        <i class="fa-solid fa-file-invoice-dollar"></i>
+        Billing PO
+      </div>
+      <div id="boxBilling" class="result-body">-</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  /* =========================================================
+     SUPABASE CONFIGURATION
+     ========================================================= */
+  const SUPABASE_URL = 'https://tnellcczognzzjkwtsbf.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_1qt2jx7-2aN-bjfbFr1C9g_BxwOU4jG';
+  const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  /* =========================================================
+     SEARCH
+     ========================================================= */
+  async function runSearch() {
+    var custCodeInput = document.getElementById('custCodeInput');
+    var custCode = custCodeInput.value.trim();
+    var errorBox = document.getElementById('errorBox');
+    var resultGrid = document.getElementById('resultGrid');
+
+    errorBox.style.display = 'none';
+    errorBox.textContent = '';
+
+    if (!custCode) {
+      errorBox.textContent = 'กรุณากรอกรหัสลูกค้า';
+      errorBox.style.background = '#fee2e2';
+      errorBox.style.color = '#991b1b';
+      errorBox.style.borderColor = '#fecaca';
+      errorBox.style.display = 'block';
+      resultGrid.style.display = 'none';
+      return;
+    }
+
+    errorBox.style.display = 'block';
+    errorBox.style.background = '#eff6ff';
+    errorBox.style.color = '#1d4ed8';
+    errorBox.style.borderColor = '#bfdbfe';
+    errorBox.textContent = 'กำลังค้นหาข้อมูล...';
+
+    // แปลงรหัสเป็นตัวพิมพ์ใหญ่เพื่อความแม่นยำในการค้นหา
+    const searchCode = custCode.toUpperCase();
+
+    try {
+      const { data, error } = await sbClient
+        .from('invoice_conditions')
+        .select('*')
+        .eq('customer_code', searchCode)
+        .maybeSingle();
+
+      errorBox.style.display = 'none';
+      errorBox.style.background = '';
+      errorBox.style.color = '';
+      errorBox.style.borderColor = '';
+
+      if (error) {
+        console.error('Database Error:', error.message);
+        errorBox.textContent = 'เกิดข้อผิดพลาดในการดึงข้อมูล: ' + error.message;
+        errorBox.style.background = '#fee2e2';
+        errorBox.style.color = '#991b1b';
+        errorBox.style.borderColor = '#fecaca';
+        errorBox.style.display = 'block';
+        resultGrid.style.display = 'none';
+        return;
+      }
+
+      if (!data) {
+        errorBox.textContent = 'ไม่พบข้อมูลรหัสลูกค้า ' + searchCode;
+        errorBox.style.background = '#fee2e2';
+        errorBox.style.color = '#991b1b';
+        errorBox.style.borderColor = '#fecaca';
+        errorBox.style.display = 'block';
+        resultGrid.style.display = 'none';
+        return;
+      }
+
+      /* CUSTOMER */
+      document.getElementById('txtCustName').textContent = data.customer_name || '-';
+      document.getElementById('txtCustCode').textContent = data.customer_code || '-';
+
+      /* SALES */
+      document.getElementById('txtSalesName').textContent = data.sales_incharge || '-';
+
+      /* DOCUMENT INFORMATION */
+      document.getElementById('selDocType').textContent = data.doc_type || '-';
+      document.getElementById('selCopies').textContent = data.copies || '-';
+      document.getElementById('selDocReturn').textContent = data.doc_return || '-';
+
+      /* SALE SUPPORT */
+      document.getElementById('txtSaleSupport').textContent = data.sale_support || '-';
+
+      /* RESULT CARDS */
+      document.getElementById('boxConditions').textContent = data.invoice_conditions || '-';
+      document.getElementById('boxDocument').textContent = data.document_attached || '-';
+      document.getElementById('boxRemark').textContent = data.remark || '-';
+      document.getElementById('boxBilling').textContent = data.billing_po || '-';
+
+      /* SHOW */
+      resultGrid.style.display = 'grid';
+
+    } catch (err) {
+      console.error('Network Error:', err);
+      errorBox.textContent = 'เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + err.message;
+      errorBox.style.background = '#fee2e2';
+      errorBox.style.color = '#991b1b';
+      errorBox.style.borderColor = '#fecaca';
+      errorBox.style.display = 'block';
+      resultGrid.style.display = 'none';
+    }
+  }
+
+  /* =========================================================
+     ENTER KEY
+     ========================================================= */
+  document.getElementById('custCodeInput').addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+      runSearch();
+    }
+  });
+</script>
+
 </body>
 </html>
-```
