@@ -30,7 +30,7 @@
     }
 
     /* =========================
-       COMPACT HEADER
+       COMPACT HEADER (MATCH ORIGINAL 2-COL ROW 1)
        ========================= */
     .header-grid{
       display:grid;
@@ -342,7 +342,7 @@
        RESULT CARDS
        ========================= */
     .result-grid{
-      display:none;
+      display:grid;
       width:100%;
       grid-template-columns:repeat(4,minmax(0,1fr));
       gap:14px;
@@ -480,7 +480,7 @@
 <div class="container">
 
   <!-- =========================
-       ROW 1
+       ROW 1 (Exact 2-Column Header Layout)
        ========================= -->
   <div class="header-grid">
 
@@ -500,7 +500,7 @@
           type="text"
           id="custCodeInput"
           class="search-input"
-          placeholder="กรอกรหัสลูกค้า..."
+          placeholder="กรอกรหัสลูกค้า เช่น TH0032"
           autocomplete="off">
         <button class="search-button" onclick="runSearch()">
           <i class="fa-solid fa-magnifying-glass"></i>
@@ -603,7 +603,7 @@
   </div>
 
   <!-- =========================
-       RESULT
+       RESULT CARDS (Always visible like original UI)
        ========================= -->
   <div id="resultGrid" class="result-grid">
 
@@ -618,146 +618,3 @@
     <div class="result-card">
       <div class="result-header">
         <i class="fa-solid fa-paperclip"></i>
-        Document Attached
-      </div>
-      <div id="boxDocument" class="result-body">-</div>
-    </div>
-
-    <div class="result-card">
-      <div class="result-header">
-        <i class="fa-solid fa-comment-dots"></i>
-        Remark
-      </div>
-      <div id="boxRemark" class="result-body">-</div>
-    </div>
-
-    <div class="result-card">
-      <div class="result-header">
-        <i class="fa-solid fa-file-invoice-dollar"></i>
-        Billing PO
-      </div>
-      <div id="boxBilling" class="result-body">-</div>
-    </div>
-
-  </div>
-</div>
-
-<script>
-  /* =========================================================
-     SUPABASE CONFIGURATION
-     ========================================================= */
-  const SUPABASE_URL = 'https://tnellcczognzzjkwtsbf.supabase.co';
-  const SUPABASE_ANON_KEY = 'sb_publishable_1qt2jx7-2aN-bjfbFr1C9g_BxwOU4jG';
-  const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  /* =========================================================
-     SEARCH
-     ========================================================= */
-  async function runSearch() {
-    var custCodeInput = document.getElementById('custCodeInput');
-    var custCode = custCodeInput.value.trim();
-    var errorBox = document.getElementById('errorBox');
-    var resultGrid = document.getElementById('resultGrid');
-
-    errorBox.style.display = 'none';
-    errorBox.textContent = '';
-
-    if (!custCode) {
-      errorBox.textContent = 'กรุณากรอกรหัสลูกค้า';
-      errorBox.style.background = '#fee2e2';
-      errorBox.style.color = '#991b1b';
-      errorBox.style.borderColor = '#fecaca';
-      errorBox.style.display = 'block';
-      resultGrid.style.display = 'none';
-      return;
-    }
-
-    errorBox.style.display = 'block';
-    errorBox.style.background = '#eff6ff';
-    errorBox.style.color = '#1d4ed8';
-    errorBox.style.borderColor = '#bfdbfe';
-    errorBox.textContent = 'กำลังค้นหาข้อมูล...';
-
-    // แปลงรหัสเป็นตัวพิมพ์ใหญ่เพื่อความแม่นยำในการค้นหา
-    const searchCode = custCode.toUpperCase();
-
-    try {
-      const { data, error } = await sbClient
-        .from('invoice_conditions')
-        .select('*')
-        .eq('customer_code', searchCode)
-        .maybeSingle();
-
-      errorBox.style.display = 'none';
-      errorBox.style.background = '';
-      errorBox.style.color = '';
-      errorBox.style.borderColor = '';
-
-      if (error) {
-        console.error('Database Error:', error.message);
-        errorBox.textContent = 'เกิดข้อผิดพลาดในการดึงข้อมูล: ' + error.message;
-        errorBox.style.background = '#fee2e2';
-        errorBox.style.color = '#991b1b';
-        errorBox.style.borderColor = '#fecaca';
-        errorBox.style.display = 'block';
-        resultGrid.style.display = 'none';
-        return;
-      }
-
-      if (!data) {
-        errorBox.textContent = 'ไม่พบข้อมูลรหัสลูกค้า ' + searchCode;
-        errorBox.style.background = '#fee2e2';
-        errorBox.style.color = '#991b1b';
-        errorBox.style.borderColor = '#fecaca';
-        errorBox.style.display = 'block';
-        resultGrid.style.display = 'none';
-        return;
-      }
-
-      /* CUSTOMER */
-      document.getElementById('txtCustName').textContent = data.customer_name || '-';
-      document.getElementById('txtCustCode').textContent = data.customer_code || '-';
-
-      /* SALES */
-      document.getElementById('txtSalesName').textContent = data.sales_incharge || '-';
-
-      /* DOCUMENT INFORMATION */
-      document.getElementById('selDocType').textContent = data.doc_type || '-';
-      document.getElementById('selCopies').textContent = data.copies || '-';
-      document.getElementById('selDocReturn').textContent = data.doc_return || '-';
-
-      /* SALE SUPPORT */
-      document.getElementById('txtSaleSupport').textContent = data.sale_support || '-';
-
-      /* RESULT CARDS */
-      document.getElementById('boxConditions').textContent = data.invoice_conditions || '-';
-      document.getElementById('boxDocument').textContent = data.document_attached || '-';
-      document.getElementById('boxRemark').textContent = data.remark || '-';
-      document.getElementById('boxBilling').textContent = data.billing_po || '-';
-
-      /* SHOW */
-      resultGrid.style.display = 'grid';
-
-    } catch (err) {
-      console.error('Network Error:', err);
-      errorBox.textContent = 'เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + err.message;
-      errorBox.style.background = '#fee2e2';
-      errorBox.style.color = '#991b1b';
-      errorBox.style.borderColor = '#fecaca';
-      errorBox.style.display = 'block';
-      resultGrid.style.display = 'none';
-    }
-  }
-
-  /* =========================================================
-     ENTER KEY
-     ========================================================= */
-  document.getElementById('custCodeInput').addEventListener('keydown', function(event) {
-    if (event.key === 'Enter') {
-      runSearch();
-    }
-  });
-</script>
-
-</body>
-</html>
