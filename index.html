@@ -28,27 +28,37 @@
             </div>
         </div>
 
-        <!-- Customer Info Cards -->
+        <!-- Customer & Sales Info Cards (Match Original Layout) -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="bg-white p-5 rounded-2xl shadow-sm flex items-center justify-between">
+            <!-- Customer Name & Code Card -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm flex items-center gap-3">
+                <div class="p-3 bg-blue-50 text-blue-600 rounded-xl">🏢</div>
                 <div>
                     <h2 id="customerName" class="text-lg font-bold text-slate-800">-</h2>
                     <p class="text-xs text-slate-400">Customer Code : <span id="displayCode">-</span></p>
                 </div>
             </div>
+
+            <!-- Sales Incharge & Support Grid -->
             <div class="grid grid-cols-2 gap-4">
-                <div class="bg-white p-4 rounded-2xl shadow-sm">
-                    <p class="text-xs text-slate-400">Sales Incharge</p>
-                    <p id="salesIncharge" class="font-bold text-slate-700 text-lg">-</p>
+                <div class="bg-white p-4 rounded-2xl shadow-sm flex items-center gap-3">
+                    <div class="p-2.5 bg-purple-50 text-purple-600 rounded-xl">👤</div>
+                    <div>
+                        <p class="text-xs text-slate-400">Sales Incharge</p>
+                        <p id="salesIncharge" class="font-bold text-slate-700 text-base">-</p>
+                    </div>
                 </div>
-                <div class="bg-white p-4 rounded-2xl shadow-sm">
-                    <p class="text-xs text-slate-400">Sale Support</p>
-                    <p id="saleSupport" class="font-bold text-slate-700 text-lg">-</p>
+                <div class="bg-white p-4 rounded-2xl shadow-sm flex items-center gap-3">
+                    <div class="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl">🎧</div>
+                    <div>
+                        <p class="text-xs text-slate-400">Sale Support</p>
+                        <p id="saleSupport" class="font-bold text-slate-700 text-base">-</p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Sub Info Bar -->
+        <!-- Sub Info Bar (Doc Type, Copies, Doc Return) -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="bg-white p-4 rounded-2xl shadow-sm flex items-center gap-3">
                 <div class="p-2 bg-red-50 text-red-600 rounded-lg">📄</div>
@@ -73,30 +83,30 @@
             </div>
         </div>
 
-        <!-- Details Boxes -->
+        <!-- Details Boxes (4 Columns with Color Top Borders) -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="bg-white rounded-2xl shadow-sm overflow-hidden border-t-4 border-red-600">
                 <div class="bg-red-50 px-4 py-2 font-bold text-red-600 text-sm">Invoice Conditions</div>
-                <div id="invoiceConditions" class="p-4 text-slate-600 text-sm min-h-[100px]">-</div>
+                <div id="invoiceConditions" class="p-4 text-slate-600 text-sm min-h-[120px] whitespace-pre-line">-</div>
             </div>
             <div class="bg-white rounded-2xl shadow-sm overflow-hidden border-t-4 border-indigo-900">
                 <div class="bg-indigo-50 px-4 py-2 font-bold text-indigo-900 text-sm">Document Attached</div>
-                <div id="documentAttached" class="p-4 text-slate-600 text-sm min-h-[100px]">-</div>
+                <div id="documentAttached" class="p-4 text-slate-600 text-sm min-h-[120px] whitespace-pre-line">-</div>
             </div>
             <div class="bg-white rounded-2xl shadow-sm overflow-hidden border-t-4 border-purple-600">
                 <div class="bg-purple-50 px-4 py-2 font-bold text-purple-600 text-sm">Remark</div>
-                <div id="remark" class="p-4 text-slate-600 text-sm min-h-[100px]">-</div>
+                <div id="remark" class="p-4 text-slate-600 text-sm min-h-[120px] whitespace-pre-line">-</div>
             </div>
             <div class="bg-white rounded-2xl shadow-sm overflow-hidden border-t-4 border-emerald-600">
                 <div class="bg-emerald-50 px-4 py-2 font-bold text-emerald-600 text-sm">Billing PO</div>
-                <div id="billingPo" class="p-4 text-slate-600 text-sm min-h-[100px]">-</div>
+                <div id="billingPo" class="p-4 text-slate-600 text-sm min-h-[120px] whitespace-pre-line">-</div>
             </div>
         </div>
     </div>
 
     <script>
         const SUPABASE_URL = 'https://tnellcczognzzjkwtsbf.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_1qt2jx7-2aN-bjfbFr1C9g_BxwOU4jG';
+        const SUPABASE_ANON_KEY = 'sb_publishable_1qt2jx7-2aN-bjfbFr1C9g_BxwOU4jG';
         const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         window.handleSearch = async function() {
@@ -125,13 +135,16 @@ const SUPABASE_ANON_KEY = 'sb_publishable_1qt2jx7-2aN-bjfbFr1C9g_BxwOU4jG';
                 return;
             }
 
+            // Map data fields to original layout IDs
             document.getElementById('customerName').innerText = data.customer_name || '-';
             document.getElementById('displayCode').innerText = data.customer_code || '-';
             document.getElementById('salesIncharge').innerText = data.sales_incharge || '-';
             document.getElementById('saleSupport').innerText = data.sale_support || '-';
+            
             document.getElementById('docType').innerText = data.doc_type || '-';
             document.getElementById('copies').innerText = data.copies || '-';
             document.getElementById('docReturn').innerText = data.doc_return || '-';
+            
             document.getElementById('invoiceConditions').innerText = data.invoice_conditions || '-';
             document.getElementById('documentAttached').innerText = data.document_attached || '-';
             document.getElementById('remark').innerText = data.remark || '-';
@@ -140,3 +153,4 @@ const SUPABASE_ANON_KEY = 'sb_publishable_1qt2jx7-2aN-bjfbFr1C9g_BxwOU4jG';
     </script>
 </body>
 </html>
+```
