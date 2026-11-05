@@ -96,4 +96,47 @@
 
     <script>
         const SUPABASE_URL = 'https://tnellcczognzzjkwtsbf.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6Ik
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRuZWxsY3pvZ256empla3dzYmYiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc2MjE5MTg1NiwiZXhwIjoyMDc3NzY3ODU2fQ.wH-XNq-_';
+        const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        window.handleSearch = async function() {
+            let code = document.getElementById('searchInput').value.trim();
+            if (!code) {
+                alert('กรุณากรอกรหัสลูกค้า');
+                return;
+            }
+
+            code = code.toUpperCase();
+
+            const { data, error } = await sbClient
+                .from('invoice_conditions')
+                .select('*')
+                .eq('customer_code', code)
+                .maybeSingle();
+
+            if (error) {
+                console.error('Database Error:', error.message);
+                alert('เกิดข้อผิดพลาดในการดึงข้อมูล');
+                return;
+            }
+
+            if (!data) {
+                alert('ไม่พบข้อมูลรหัสลูกค้านี้');
+                return;
+            }
+
+            document.getElementById('customerName').innerText = data.customer_name || '-';
+            document.getElementById('displayCode').innerText = data.customer_code || '-';
+            document.getElementById('salesIncharge').innerText = data.sales_incharge || '-';
+            document.getElementById('saleSupport').innerText = data.sale_support || '-';
+            document.getElementById('docType').innerText = data.doc_type || '-';
+            document.getElementById('copies').innerText = data.copies || '-';
+            document.getElementById('docReturn').innerText = data.doc_return || '-';
+            document.getElementById('invoiceConditions').innerText = data.invoice_conditions || '-';
+            document.getElementById('documentAttached').innerText = data.document_attached || '-';
+            document.getElementById('remark').innerText = data.remark || '-';
+            document.getElementById('billingPo').innerText = data.billing_po || '-';
+        }
+    </script>
+</body>
+</html>
