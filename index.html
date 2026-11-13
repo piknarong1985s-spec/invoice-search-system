@@ -1,13 +1,3 @@
-<head>
-  <base target="_top">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Invoice Data Search Dashboard</title>
-
-  <!-- นำมาวางไว้บรรทัดนี้ครับ -->
-  <link rel="icon" type="image/png" href="https://i.postimg.cc/hj1XhRPQ/Screenshot-2026-11-05-114721.png">
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <!DOCTYPE html>
 <html>
 <head>
@@ -15,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Invoice Data Search Dashboard</title>
 
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/hj1XhRPQ/Screenshot-2026-11-05-114721.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -483,6 +474,138 @@
 
       .result-card{min-height:180px}
     }
+
+    /* =========================
+       CUSTOMER DROPDOWN (ADD-ON)
+       ========================= */
+    .search-area .search-input{
+      flex:0 0 140px !important;
+      min-width:0;
+      width:140px !important;
+    }
+
+    /* ช่องค้นหาพอดีเนื้อหา + ให้กล่องซ้ายแถว 1 กับแถว 2 กว้างเท่ากัน */
+    .search-card .search-area{width:auto;flex:0 0 auto}
+    .search-card .search-button,
+    .search-card .cust-dd{flex:0 0 auto}
+
+    /* ให้ส่วนชื่อระบบหดได้ ปุ่มค้นหาจะไม่ตกขอบ */
+    .search-card .brand-text{
+      flex:1 1 auto;
+      min-width:0;
+      overflow:hidden;
+    }
+    .search-card .brand-title,
+    .search-card .brand-subtitle{
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .search-card .brand-title{font-size:15px}
+
+    @media(min-width:851px){
+      .header-grid,
+      .second-grid{
+        grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+      }
+    }
+
+    @media(max-width:600px){
+      .search-card .brand-title{font-size:14px}
+      .search-card .search-area{width:100%;flex:1 1 100%}
+      .search-area .search-input{flex:1 1 auto !important;width:auto !important}
+    }
+
+    .cust-dd{
+      position:relative;
+      flex:0 0 auto;
+    }
+
+    .dd-toggle{
+      width:42px;
+      height:42px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      padding:0;
+      border:2px solid #d8e0eb;
+      border-radius:10px;
+      background:#fff;
+      color:#24344d;
+      font-size:14px;
+      font-weight:600;
+      cursor:pointer;
+      transition:.2s;
+    }
+
+    .dd-toggle:hover,
+    .cust-dd.open .dd-toggle{
+      border-color:#ff3b3b;
+      box-shadow:0 0 0 3px rgba(255,0,0,.08);
+    }
+
+    .dd-toggle i{
+      font-size:11px;
+      color:#6b7280;
+      transition:transform .2s;
+    }
+
+    .cust-dd.open .dd-toggle i{transform:rotate(180deg)}
+
+    .dd-panel{
+      display:none;
+      position:absolute;
+      top:46px;
+      right:0;
+      left:auto;
+      z-index:999;
+      width:440px;
+      max-width:90vw;
+      max-height:260px;
+      overflow-y:auto;
+      background:#fff;
+      border:1px solid #cfd8e6;
+      border-radius:10px;
+      box-shadow:0 8px 24px rgba(0,0,0,.15);
+    }
+
+    .cust-dd.open .dd-panel{display:block}
+
+    .dd-item{
+      display:grid;
+      grid-template-columns:100px 1fr;
+      align-items:center;
+      padding:7px 12px;
+      font-size:13px;
+      color:#172033;
+      cursor:pointer;
+      border-bottom:1px solid #f0f3f8;
+    }
+
+    .dd-item:last-child{border-bottom:none}
+
+    .dd-item:hover{
+      background:#ffeaea;
+    }
+
+    .dd-code{
+      font-weight:700;
+      color:#24344d;
+    }
+
+    .dd-name{
+      overflow:hidden;
+      white-space:nowrap;
+      text-overflow:ellipsis;
+    }
+
+    .dd-empty{
+      padding:12px;
+      font-size:13px;
+      color:#7b8798;
+      text-align:center;
+    }
+
   </style>
 </head>
 
@@ -506,12 +629,25 @@
       </div>
 
       <div class="search-area">
+
         <input
           type="text"
           id="custCodeInput"
           class="search-input"
           placeholder="กรอกรหัสลูกค้า"
           autocomplete="off">
+
+        <!-- ===== ADD: DROPDOWN (ปุ่มอยู่ระหว่างช่องกรอกกับปุ่มค้นหา) ===== -->
+        <div class="cust-dd" id="custDd">
+          <button type="button" class="dd-toggle" id="ddToggle" title="เลือกลูกค้า">
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+          <div class="dd-panel" id="ddPanel">
+            <div class="dd-empty">กำลังโหลดรายการ...</div>
+          </div>
+        </div>
+        <!-- ===== END ADD ===== -->
+
         <button class="search-button" onclick="runSearch()">
           <i class="fa-solid fa-magnifying-glass"></i>
           &nbsp;ค้นหา
@@ -758,6 +894,93 @@
       runSearch();
     }
   });
+
+  /* =========================================================
+     CUSTOMER DROPDOWN (ADD-ON)
+     ========================================================= */
+  (function () {
+    var dd      = document.getElementById('custDd');
+    var toggle  = document.getElementById('ddToggle');
+    var panel   = document.getElementById('ddPanel');
+    var input   = document.getElementById('custCodeInput');
+
+    /* เปิด/ปิดรายการ */
+    toggle.addEventListener('click', function (e) {
+      e.stopPropagation();
+      dd.classList.toggle('open');
+    });
+
+    /* คลิกนอกกล่องแล้วปิด */
+    document.addEventListener('click', function (e) {
+      if (!dd.contains(e.target)) dd.classList.remove('open');
+    });
+
+    /* เลือกรายการ */
+    function selectCustomer(code) {
+      input.value = code;
+      dd.classList.remove('open');
+      runSearch();
+    }
+
+    /* สร้างรายการ */
+    function renderList(rows) {
+      panel.innerHTML = '';
+      if (!rows.length) {
+        var empty = document.createElement('div');
+        empty.className = 'dd-empty';
+        empty.textContent = 'ไม่พบรายการ';
+        panel.appendChild(empty);
+        return;
+      }
+      rows.forEach(function (r) {
+        var item = document.createElement('div');
+        item.className = 'dd-item';
+
+        var c = document.createElement('div');
+        c.className = 'dd-code';
+        c.textContent = r.customer_code || '';
+
+        var n = document.createElement('div');
+        n.className = 'dd-name';
+        n.textContent = r.customer_name || '';
+        n.title = r.customer_name || '';
+
+        item.appendChild(c);
+        item.appendChild(n);
+        item.addEventListener('click', function () {
+          selectCustomer(r.customer_code);
+        });
+        panel.appendChild(item);
+      });
+    }
+
+    /* โหลดรายชื่อลูกค้าจาก Supabase (รองรับเกิน 1,000 แถว) */
+    async function loadCustomerList() {
+      var all = [];
+      var from = 0;
+      var size = 1000;
+      try {
+        while (true) {
+          var res = await sbClient
+            .from('invoice_conditions')
+            .select('customer_code, customer_name')
+            .order('customer_code', { ascending: true })
+            .range(from, from + size - 1);
+
+          if (res.error) throw res.error;
+          all = all.concat(res.data || []);
+          if (!res.data || res.data.length < size) break;
+          from += size;
+        }
+        renderList(all);
+      } catch (err) {
+        console.error('Dropdown Error:', err);
+        panel.innerHTML = '<div class="dd-empty">โหลดรายการไม่สำเร็จ</div>';
+      }
+    }
+
+    loadCustomerList();
+  })();
 </script>
 
 </body>
